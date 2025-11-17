@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - EduConnect</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">EduConnect</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="index.html#how-it-works">How it Works</a>
+                    <a href="index.html#resources">Resources</a>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="help.html">Help</a>
+                </div>
+                <div class="nav-buttons">
+                    <a href="login.html" class="btn-outline">Login</a>
+                    <a href="register.html" class="btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" style="padding: 100px 0 60px; margin-top: 70px;">
+        <div class="container">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 48px; margin-bottom: 20px;">Get in Touch</h1>
+                <p style="font-size: 20px; color: rgba(255,255,255,0.9);">
+                    Have questions? We're here to help. Reach out to our team anytime.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section-white">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;">
+                <!-- Contact Form -->
+                <div>
+                    <h2 style="font-size: 32px; margin-bottom: 20px; color: #1f2937;">Send Us a Message</h2>
+                    <p style="color: #6b7280; margin-bottom: 30px;">
+                        Fill out the form below and we'll get back to you as soon as possible.
+                    </p>
+
+                    <div id="contactAlert"></div>
+
+                    <form id="contactForm" onsubmit="handleContact(event)">
+                        <div class="form-group">
+                            <label>Your Name</label>
+                            <input type="text" id="contactName" class="form-control" required placeholder="John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="contactEmail" class="form-control" required placeholder="john@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="contactSubject" class="form-control" required>
+                                <option value="">Select a subject</option>
+                                <option value="General Inquiry">General Inquiry</option>
+                                <option value="Technical Support">Technical Support</option>
+                                <option value="Tutor Application">Tutor Application</option>
+                                <option value="Partnership">Partnership Opportunity</option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea id="contactMessage" class="form-control" rows="6" required placeholder="Tell us how we can help..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%;">Send Message</button>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div>
+                    <h2 style="font-size: 32px; margin-bottom: 30px; color: #1f2937;">Contact Information</h2>
+
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="font-size: 32px;">📧</div>
+                            <div>
+                                <h4 style="color: #1f2937; margin-bottom: 8px;">Email Us</h4>
+                                <p style="color: #6b7280;">support@educonnect.com</p>
+                                <p style="color: #6b7280;">info@educonnect.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="font-size: 32px;">📞</div>
+                            <div>
+                                <h4 style="color: #1f2937; margin-bottom: 8px;">Call Us</h4>
+                                <p style="color: #6b7280;">+1 (555) 123-4567</p>
+                                <p style="color: #9ca3af; font-size: 14px;">Mon-Fri: 9:00 AM - 6:00 PM EST</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="font-size: 32px;">📍</div>
+                            <div>
+                                <h4 style="color: #1f2937; margin-bottom: 8px;">Visit Us</h4>
+                                <p style="color: #6b7280;">123 Education Street</p>
+                                <p style="color: #6b7280;">Learning City, LC 12345</p>
+                                <p style="color: #6b7280;">United States</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="font-size: 32px;">💬</div>
+                            <div>
+                                <h4 style="color: #1f2937; margin-bottom: 8px;">Live Chat</h4>
+                                <p style="color: #6b7280; margin-bottom: 15px;">Chat with our support team in real-time</p>
+                                <button onclick="alert('Live chat feature coming soon!')" class="btn-outline">Start Chat</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 40px;">
+                        <h3 style="color: #1f2937; margin-bottom: 20px;">Follow Us</h3>
+                        <div style="display: flex; gap: 15px;">
+                            <a href="#" style="font-size: 32px; text-decoration: none;" title="Facebook">📘</a>
+                            <a href="#" style="font-size: 32px; text-decoration: none;" title="Twitter">🐦</a>
+                            <a href="#" style="font-size: 32px; text-decoration: none;" title="Instagram">📷</a>
+                            <a href="#" style="font-size: 32px; text-decoration: none;" title="LinkedIn">💼</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Preview Section -->
+    <section class="section-gray">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 50px;">
+                <h2 style="font-size: 36px; margin-bottom: 15px;">Quick Answers</h2>
+                <p style="color: #6b7280; font-size: 18px;">Check out our FAQ for instant answers to common questions</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1000px; margin: 0 auto;">
+                <div class="card">
+                    <h4 style="color: #6366f1; margin-bottom: 10px;">How do I become a tutor?</h4>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Simply sign up with a tutor account, complete your profile, and start creating sessions. It's that easy!
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h4 style="color: #6366f1; margin-bottom: 10px;">Is EduConnect free?</h4>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Yes! Students can browse tutors and enroll in sessions for free. Tutors can also create and manage sessions at no cost.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h4 style="color: #6366f1; margin-bottom: 10px;">How do I enroll in a session?</h4>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Browse available tutors, view their sessions, and click "Enroll Now" to instantly join any available session.
+                    </p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="help.html" class="btn-primary">View All FAQs</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>📚 EduConnect</h3>
+                    <p>Connecting students with expert tutors for a better educational future.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#how-it-works">How it Works</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="help.html">FAQ</a></li>
+                        <li><a href="help.html">Help Center</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 EduConnect. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/storage.js"></script>
+    <script>
+        function handleContact(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // In a real application, this would send the data to a server
+            console.log('Contact Form Submission:', { name, email, subject, message });
+
+            const alertDiv = document.getElementById('contactAlert');
+            alertDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Message Sent Successfully!</strong><br>
+                    Thank you for contacting us, ${name}. We'll get back to you at ${email} as soon as possible.
+                </div>
+            `;
+
+            // Reset form
+            document.getElementById('contactForm').reset();
+
+            // Scroll to alert
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Clear alert after 7 seconds
+            setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 7000);
+        }
+    </script>
+</body>
+</html>

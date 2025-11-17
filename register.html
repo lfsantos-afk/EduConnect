@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - EduConnect</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <div class="logo">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">EduConnect</span>
+                </div>
+                <h2>Create Your Account</h2>
+                <p style="color: #6b7280; margin-top: 10px;">Join thousands of learners and tutors</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>I am a:</label>
+                    <div class="role-selector">
+                        <label class="role-option active" id="studentOption">
+                            <input type="radio" name="role" value="student" checked>
+                            <div class="role-icon">🎓</div>
+                            <div style="font-weight: 600;">Student</div>
+                        </label>
+                        <label class="role-option" id="tutorOption">
+                            <input type="radio" name="role" value="tutor">
+                            <div class="role-icon">👨‍🏫</div>
+                            <div style="font-weight: 600;">Tutor</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" class="form-control" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" required placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required placeholder="At least 6 characters">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" required placeholder="Re-enter your password">
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+            <div class="auth-footer" style="margin-top: 10px;">
+                <a href="index.html">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Role selector functionality
+        const studentOption = document.getElementById('studentOption');
+        const tutorOption = document.getElementById('tutorOption');
+        const roleInputs = document.querySelectorAll('input[name="role"]');
+
+        roleInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                studentOption.classList.remove('active');
+                tutorOption.classList.remove('active');
+                
+                if (this.value === 'student') {
+                    studentOption.classList.add('active');
+                } else {
+                    tutorOption.classList.add('active');
+                }
+            });
+        });
+
+        // Check URL parameters for role
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam === 'tutor') {
+            document.querySelector('input[value="tutor"]').checked = true;
+            studentOption.classList.remove('active');
+            tutorOption.classList.add('active');
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+
+            const result = auth.register({
+                name: name,
+                email: email,
+                password: password,
+                role: role
+            });
+
+            if (result.success) {
+                showAlert(result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                showAlert(result.message, 'error');
+            }
+        }
+
+        // Check if already logged in
+        if (auth.isAuthenticated()) {
+            const user = auth.getCurrentUser();
+            if (user.role === 'student') {
+                window.location.href = 'student-dashboard.html';
+            } else if (user.role === 'tutor') {
+                window.location.href = 'tutor-dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

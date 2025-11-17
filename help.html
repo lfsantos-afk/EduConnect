@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - EduConnect</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .faq-item {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .faq-item:hover {
+            border-color: #6366f1;
+        }
+        
+        .faq-question {
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #1f2937;
+            user-select: none;
+        }
+        
+        .faq-question:hover {
+            background: #f9fafb;
+        }
+        
+        .faq-icon {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+        
+        .faq-answer-content {
+            padding: 0 25px 20px 25px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+        
+        .category-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+        
+        .category-btn:hover,
+        .category-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">EduConnect</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="index.html#how-it-works">How it Works</a>
+                    <a href="index.html#resources">Resources</a>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="help.html">Help</a>
+                </div>
+                <div class="nav-buttons">
+                    <a href="login.html" class="btn-outline">Login</a>
+                    <a href="register.html" class="btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" style="padding: 100px 0 60px; margin-top: 70px;">
+        <div class="container">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 48px; margin-bottom: 20px;">Help Center</h1>
+                <p style="font-size: 20px; color: rgba(255,255,255,0.9); margin-bottom: 30px;">
+                    Find answers to common questions and learn how to make the most of EduConnect
+                </p>
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <input type="text" id="searchFAQ" placeholder="Search for help..." class="form-control" style="padding: 15px 20px; font-size: 16px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section class="section-white">
+        <div class="container">
+            <h2 style="font-size: 32px; text-align: center; margin-bottom: 40px;">Popular Topics</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px;">
+                <div class="card card-hover" onclick="scrollToCategory('getting-started')" style="cursor: pointer; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">🚀</div>
+                    <h3 style="color: #1f2937; margin-bottom: 10px;">Getting Started</h3>
+                    <p style="color: #6b7280; font-size: 14px;">Learn the basics of using EduConnect</p>
+                </div>
+
+                <div class="card card-hover" onclick="scrollToCategory('students')" style="cursor: pointer; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">👨‍🎓</div>
+                    <h3 style="color: #1f2937; margin-bottom: 10px;">For Students</h3>
+                    <p style="color: #6b7280; font-size: 14px;">Find tutors and enroll in sessions</p>
+                </div>
+
+                <div class="card card-hover" onclick="scrollToCategory('tutors')" style="cursor: pointer; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">👨‍🏫</div>
+                    <h3 style="color: #1f2937; margin-bottom: 10px;">For Tutors</h3>
+                    <p style="color: #6b7280; font-size: 14px;">Create sessions and manage students</p>
+                </div>
+
+                <div class="card card-hover" onclick="scrollToCategory('technical')" style="cursor: pointer; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">⚙️</div>
+                    <h3 style="color: #1f2937; margin-bottom: 10px;">Technical Support</h3>
+                    <p style="color: #6b7280; font-size: 14px;">Troubleshooting and technical help</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section-gray">
+        <div class="container">
+            <h2 style="font-size: 36px; text-align: center; margin-bottom: 40px;">Frequently Asked Questions</h2>
+
+            <!-- Getting Started -->
+            <div id="getting-started" style="margin-bottom: 50px;">
+                <h3 style="color: #6366f1; margin-bottom: 25px; font-size: 28px;">🚀 Getting Started</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What is EduConnect?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            EduConnect is an online platform that connects students with qualified tutors across various subjects. We provide a simple, accessible way for students to find expert help and for educators to share their knowledge with eager learners.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I create an account?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Click the "Sign Up" button in the top right corner, choose whether you're a student or tutor, fill in your details (name, email, password), and you're all set! Your account will be created instantly and you can start using the platform right away.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is EduConnect free to use?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! EduConnect is completely free for both students and tutors. Students can browse tutors, enroll in sessions, and access resources at no cost. Tutors can create sessions and connect with students without any fees.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What subjects are available?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            We offer tutoring in over 30 subjects including Mathematics, Science, Programming, English, History, Languages, Arts, and many more. Our tutor community is constantly growing, adding new subjects and specializations regularly.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Students -->
+            <div id="students" style="margin-bottom: 50px;">
+                <h3 style="color: #6366f1; margin-bottom: 25px; font-size: 28px;">👨‍🎓 For Students</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I find a tutor?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            After logging in, go to the "Browse Tutors" section. You can search by name, filter by subject, or browse all available tutors. Each tutor profile shows their subjects, rating, description, and available sessions.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I enroll in a tutoring session?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Find a tutor you like, click "View Sessions" to see their available tutoring sessions, then click "Enroll Now" on any session that fits your schedule. You'll be automatically enrolled and the tutor will be notified. You can view all your enrolled sessions in "My Sessions".
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I message my tutor?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! Once you're enrolled in a session, you can send messages to your tutor through the Messages section. Click on "Messages" in your dashboard, select the tutor, and start chatting. This is perfect for asking questions or clarifying details about the session.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I access educational resources?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Go to the "Resources" section in your dashboard. Here you'll find free educational materials shared by tutors and other students. You can filter by subject, search for specific topics, view resources, and download materials that help with your studies.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I share my own study materials?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Absolutely! Students can upload resources to help other learners. Click on "Upload Resource" in your dashboard, fill in the details about your material (title, description, subject), and upload it. Your contribution helps build our learning community!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Tutors -->
+            <div id="tutors" style="margin-bottom: 50px;">
+                <h3 style="color: #6366f1; margin-bottom: 25px; font-size: 28px;">👨‍🏫 For Tutors</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I become a tutor on EduConnect?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Simply sign up and select "Tutor" as your account type. After registration, complete your profile by adding your subjects, a description of your expertise, and any relevant information students should know. Then you can start creating tutoring sessions immediately!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I create a tutoring session?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            In your tutor dashboard, click "Create Session". Fill in the session details including title, subject, description, date, time, duration, and maximum number of students. Once created, students can immediately enroll in your session. You'll receive notifications when students join.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I manage my students?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Go to "My Sessions" to see all enrolled students for each session. You can also visit "My Students" to see all students who have ever enrolled in your sessions. From there, you can view student information and send them messages if needed.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I edit or delete a session?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! Go to "My Sessions" and you'll see Edit and Delete buttons for each session. When editing, you can update the title, description, date, and time. If you delete a session, all enrolled students will be automatically notified about the cancellation.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I upload educational materials?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Click "Upload Resource" in your dashboard. Add the resource title, description, select the subject and file type, and specify the file name. Your resources will be publicly available to all students on the platform, helping grow the learning community.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do notifications work?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            You'll receive notifications when students enroll in your sessions, send you messages, or when there are important updates. Check the notification bell icon in the top right corner of your dashboard. You can mark individual notifications as read or mark all as read at once.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Support -->
+            <div id="technical" style="margin-bottom: 50px;">
+                <h3 style="color: #6366f1; margin-bottom: 25px; font-size: 28px;">⚙️ Technical Support</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>I forgot my password. How do I reset it?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            On the login page, click "Forgot Password?" and enter your email address. You'll receive instructions to reset your password. If you don't receive an email within a few minutes, check your spam folder or contact our support team.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is my data secure on EduConnect?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes. We take data security seriously and use industry-standard practices to protect your information. Your data is stored securely, and we never share your personal information with third parties without your explicit consent. Read our Privacy Policy for more details.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>The platform isn't working properly. What should I do?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            First, try refreshing the page or clearing your browser cache. Make sure you're using an updated browser (Chrome, Firefox, Safari, or Edge). If problems persist, contact our support team through the Contact page with details about the issue you're experiencing.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I use EduConnect on mobile devices?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! EduConnect is fully responsive and works great on smartphones and tablets. Simply visit our website from your mobile browser. We're also working on dedicated mobile apps for iOS and Android that will be available soon.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Still Need Help Section -->
+    <section class="section-white">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto;">
+                <h2 style="font-size: 36px; margin-bottom: 20px;">Still Need Help?</h2>
+                <p style="font-size: 18px; color: #6b7280; margin-bottom: 30px;">
+                    Can't find the answer you're looking for? Our support team is here to help!
+                </p>
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <a href="contact.html" class="btn-primary btn-large">Contact Support</a>
+                    <a href="mailto:support@educonnect.com" class="btn-outline btn-large">Email Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>📚 EduConnect</h3>
+                    <p>Connecting students with expert tutors for a better educational future.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#how-it-works">How it Works</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="help.html">FAQ</a></li>
+                        <li><a href="help.html">Help Center</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 EduConnect. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/storage.js"></script>
+    <script>
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const wasActive = faqItem.classList.contains('active');
+            
+            // Close all FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Open clicked item if it wasn't active
+            if (!wasActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
+        function scrollToCategory(categoryId) {
+            const element = document.getElementById(categoryId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchFAQ').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer-content').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    if (searchTerm.length > 2) {
+                        item.classList.add('active');
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // If search is empty, show all and close all
+            if (searchTerm === '') {
+                faqItems.forEach(item => {
+                    item.style.display = 'block';
+                    item.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

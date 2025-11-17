@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Materials - EduConnect</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .material-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        .material-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        .file-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--gray-50);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="index.html" class="navbar-logo">📚 EduConnect</a>
+            <ul class="navbar-menu">
+                <li><span id="userName" style="color: var(--gray-700); font-weight: 500;"></span></li>
+                <li><a href="student-dashboard.html">Dashboard</a></li>
+                <li><a href="help.html">Help</a></li>
+                <li><button onclick="handleLogout()" class="btn btn-secondary">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="showSection('browse')">📂 Browse Materials</a></li>
+                <li><a href="#" onclick="showSection('upload')">⬆️ Upload Material</a></li>
+                <li><a href="#" onclick="showSection('my-uploads')">📄 My Uploads</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Section: Browse Materials -->
+            <div id="browse-section" class="section-content">
+                <div style="margin-bottom: 32px;">
+                    <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Learning Materials</h1>
+                    <p style="color: var(--gray-600);">Access shared educational resources from the community</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-4" style="margin-bottom: 32px;">
+                    <div class="card" style="text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="totalMaterials">0</div>
+                        <div style="color: var(--gray-600); font-size: 14px;">Total Materials</div>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--success);" id="totalDownloads">0</div>
+                        <div style="color: var(--gray-600); font-size: 14px;">Total Downloads</div>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--warning);" id="myUploads">0</div>
+                        <div style="color: var(--gray-600); font-size: 14px;">My Uploads</div>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--danger);" id="totalLikes">0</div>
+                        <div style="color: var(--gray-600); font-size: 14px;">Total Likes</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card" style="margin-bottom: 32px;">
+                    <div class="grid grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Search</label>
+                            <input type="text" id="searchMaterials" class="form-input" placeholder="Search materials..." onkeyup="filterMaterials()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Subject</label>
+                            <select id="subjectFilter" class="form-select" onchange="filterMaterials()">
+                                <option value="">All Subjects</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sort by</label>
+                            <select id="sortBy" class="form-select" onchange="filterMaterials()">
+                                <option value="recent">Most Recent</option>
+                                <option value="downloads">Most Downloaded</option>
+                                <option value="likes">Most Liked</option>
+                                <option value="title">Title (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Materials Grid -->
+                <div id="materialsGrid" class="grid grid-3"></div>
+            </div>
+
+            <!-- Section: Upload Material -->
+            <div id="upload-section" class="section-content" style="display: none;">
+                <div style="margin-bottom: 32px;">
+                    <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Upload Material</h1>
+                    <p style="color: var(--gray-600);">Share your study materials with the community</p>
+                </div>
+
+                <div class="card">
+                    <form onsubmit="uploadMaterial(event)">
+                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                            <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)">
+                            <div style="font-size: 64px; margin-bottom: 16px;">📤</div>
+                            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">Click to select file</h3>
+                            <p style="color: var(--gray-600);">Support: PDF, DOC, DOCX, PPT, PPTX, TXT (Max 10MB)</p>
+                            <div id="selectedFile" style="margin-top: 16px; color: var(--primary); font-weight: 600;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Title *</label>
+                            <input type="text" id="materialTitle" class="form-input" required placeholder="e.g. Calculus Study Guide">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description *</label>
+                            <textarea id="materialDescription" class="form-textarea" required placeholder="Describe the content and what students will learn"></textarea>
+                        </div>
+
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Subject *</label>
+                                <select id="materialSubject" class="form-select" required>
+                                    <option value="">Select subject</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="English">English</option>
+                                    <option value="History">History</option>
+                                    <option value="Programming">Programming</option>
+                                    <option value="Art">Art</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">File Type</label>
+                                <input type="text" id="materialType" class="form-input" readonly placeholder="Will be detected">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Upload Material</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Section: My Uploads -->
+            <div id="my-uploads-section" class="section-content" style="display: none;">
+                <div style="margin-bottom: 32px;">
+                    <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">My Uploads</h1>
+                    <p style="color: var(--gray-600);">Manage materials you've shared</p>
+                </div>
+
+                <div id="myUploadsList"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/materials.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        if (!Auth.requireAuth()) {
+            // Redirect if not authenticated
+        }
+
+        const currentUser = Auth.getCurrentUser();
+        document.getElementById('userName').textContent = `Hello, ${currentUser.name}`;
+
+        let selectedFile = null;
+
+        // Initialize
+        loadStats();
+        loadMaterials();
+
+        function handleLogout() {
+            if (Notifications.confirm('Are you sure you want to logout?')) {
+                Notifications.success('Logged out successfully');
+                setTimeout(() => Auth.logout(), 1000);
+            }
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.section-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.sidebar-menu a').forEach(el => el.classList.remove('active'));
+            
+            const sectionEl = document.getElementById(`${section}-section`);
+            if (sectionEl) {
+                sectionEl.style.display = 'block';
+                sectionEl.classList.add('fade-in');
+            }
+            
+            if (section === 'browse') loadMaterials();
+            else if (section === 'my-uploads') loadMyUploads();
+        }
+
+        function loadStats() {
+            const stats = Materials.getStats();
+            document.getElementById('totalMaterials').textContent = stats.totalMaterials;
+            document.getElementById('totalDownloads').textContent = stats.totalDownloads;
+            document.getElementById('myUploads').textContent = stats.myMaterials;
+            document.getElementById('totalLikes').textContent = stats.totalLikes;
+        }
+
+        function loadMaterials() {
+            const materials = Materials.getAllMaterials();
+            
+            // Populate subject filter
+            const subjects = Materials.getAvailableSubjects();
+            const subjectFilter = document.getElementById('subjectFilter');
+            subjectFilter.innerHTML = '<option value="">All Subjects</option>' + 
+                subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+            
+            displayMaterials(materials);
+        }
+
+        function filterMaterials() {
+            const search = document.getElementById('searchMaterials').value;
+            const subject = document.getElementById('subjectFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            let materials = Materials.searchMaterials(search);
+            materials = Materials.filterMaterials({ subject, sortBy });
+            
+            displayMaterials(materials);
+        }
+
+        function displayMaterials(materials) {
+            const container = document.getElementById('materialsGrid');
+            
+            if (materials.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📂</div><h3>No materials found</h3></div>';
+                return;
+            }
+            
+            container.innerHTML = materials.map(material => {
+                const fileIcon = getFileIcon(material.type);
+                const isOwner = material.uploadedBy === currentUser.id;
+                
+                return `
+                    <div class="material-card">
+                        <div class="file-icon">${fileIcon}</div>
+                        <div style="margin-bottom: 8px;">
+                            <span class="badge badge-info">${material.subject}</span>
+                            <span class="badge badge-success">${material.type}</span>
+                        </div>
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">${material.title}</h3>
+                        <p style="color: var(--gray-600); font-size: 14px; margin-bottom: 12px;">${material.description.substring(0, 80)}...</p>
+                        <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 12px;">
+                            <div>By ${material.uploaderName}</div>
+                            <div>Size: ${material.size}</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--gray-600); margin-bottom: 12px;">
+                            <div>⬇️ ${material.downloads}</div>
+                            <div>❤️ ${material.likes}</div>
+                            <div>${new Date(material.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="downloadMaterial(${material.id})" class="btn btn-primary" style="flex: 1; font-size: 14px;">Download</button>
+                            <button onclick="likeMaterial(${material.id})" class="btn btn-secondary" style="font-size: 14px;">❤️</button>
+                            ${isOwner ? `<button onclick="deleteMaterial(${material.id})" class="btn btn-danger" style="font-size: 14px;">🗑️</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getFileIcon(type) {
+            const icons = {
+                'PDF': '📕',
+                'DOC': '📘',
+                'DOCX': '📘',
+                'PPT': '📊',
+                'PPTX': '📊',
+                'XLS': '📗',
+                'XLSX': '📗',
+                'TXT': '📄',
+                'ZIP': '📦'
+            };
+            return icons[type.toUpperCase()] || '📄';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                Notifications.error('File size must be less than 10MB');
+                return;
+            }
+            
+            selectedFile = file;
+            document.getElementById('selectedFile').textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            
+            // Auto-fill type
+            const extension = file.name.split('.').pop().toUpperCase();
+            document.getElementById('materialType').value = extension;
+            
+            // Auto-fill title if empty
+            if (!document.getElementById('materialTitle').value) {
+                const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+                document.getElementById('materialTitle').value = nameWithoutExt;
+            }
+        }
+
+        function uploadMaterial(event) {
+            event.preventDefault();
+            
+            if (!selectedFile) {
+                Notifications.error('Please select a file');
+                return;
+            }
+            
+            const result = Materials.uploadMaterial({
+                title: document.getElementById('materialTitle').value,
+                description: document.getElementById('materialDescription').value,
+                subject: document.getElementById('materialSubject').value,
+                type: document.getElementById('materialType').value,
+                size: (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB'
+            });
+            
+            if (result.success) {
+                Notifications.success('Material uploaded successfully!');
+                event.target.reset();
+                selectedFile = null;
+                document.getElementById('selectedFile').textContent = '';
+                loadStats();
+                setTimeout(() => showSection('browse'), 1000);
+            } else {
+                Notifications.error(result.message);
+            }
+        }
+
+        function downloadMaterial(materialId) {
+            const result = Materials.downloadMaterial(materialId);
+            if (result.success) {
+                Notifications.success('Download started! (Simulated)');
+                loadMaterials();
+                loadStats();
+            } else {
+                Notifications.error(result.message);
+            }
+        }
+
+        function likeMaterial(materialId) {
+            const result = Materials.likeMaterial(materialId);
+            if (result.success) {
+                Notifications.success('Material liked!');
+                loadMaterials();
+                loadStats();
+            } else {
+                Notifications.error(result.message);
+            }
+        }
+
+        function deleteMaterial(materialId) {
+            if (Notifications.confirm('Delete this material?')) {
+                const result = Materials.deleteMaterial(materialId);
+                if (result.success) {
+                    Notifications.success(result.message);
+                    loadMaterials();
+                    loadStats();
+                } else {
+                    Notifications.error(result.message);
+                }
+            }
+        }
+
+        function loadMyUploads() {
+            const materials = Materials.getMyMaterials();
+            const container = document.getElementById('myUploadsList');
+            
+            if (materials.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📄</div><h3>No uploads yet</h3><p>Start sharing your study materials!</p></div>';
+                return;
+            }
+            
+            container.innerHTML = materials.map(material => `
+                <div class="card" style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <span class="badge badge-info">${material.subject}</span>
+                                <span class="badge badge-success">${material.type}</span>
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">${material.title}</h3>
+                            <p style="color: var(--gray-600); margin-bottom: 12px;">${material.description}</p>
+                            <div style="display: flex; gap: 24px; font-size: 14px; color: var(--gray-600);">
+                                <div>⬇️ ${material.downloads} downloads</div>
+                                <div>❤️ ${material.likes} likes</div>
+                                <div>Size: ${material.size}</div>
+                                <div>${new Date(material.createdAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <button onclick="deleteMaterial(${material.id})" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
