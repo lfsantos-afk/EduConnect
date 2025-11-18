@@ -1,12 +1,12 @@
-// Authentication System with Supabase
+// Authentication System
 
 class Auth {
     constructor() {
-        this.db = db;
+        this.storage = storage;
     }
 
     // Register new user
-    async register(userData) {
+    register(userData) {
         try {
             // Validate email
             if (!this.validateEmail(userData.email)) {
@@ -14,8 +14,7 @@ class Auth {
             }
 
             // Check if email already exists
-            const existingUser = await this.db.getUserByEmail(userData.email);
-            if (existingUser) {
+            if (this.storage.getUserByEmail(userData.email)) {
                 return { success: false, message: 'Email already registered' };
             }
 
@@ -28,7 +27,7 @@ class Auth {
             }
 
             // Create user
-            const user = await this.db.createUser({
+            const user = this.storage.addUser({
                 name: userData.name,
                 email: userData.email,
                 password: userData.password, // In production, hash this!
@@ -37,17 +36,15 @@ class Auth {
 
             // If tutor, create tutor profile
             if (userData.role === 'tutor') {
-                await this.db.createTutor({
-                    user_id: user.id,
+                this.storage.addTutor({
+                    userId: user.id,
                     name: user.name,
                     email: user.email,
                     subjects: [],
                     description: '',
-                    photo: '👨‍🏫',
+                    photo: userData.role === 'tutor' ? '👨‍🏫' : '👤',
                     rating: 5.0,
-                    total_students: 0,
-                    total_reviews: 0,
-                    created_at: new Date().toISOString()
+                    totalStudents: 0
                 });
             }
 
@@ -58,14 +55,14 @@ class Auth {
             };
         } catch (error) {
             console.error('Registration error:', error);
-            return { success: false, message: 'An error occurred during registration: ' + error.message };
+            return { success: false, message: 'An error occurred during registration' };
         }
     }
 
     // Login user
-    async login(email, password) {
+    login(email, password) {
         try {
-            const user = await this.db.getUserByEmail(email);
+            const user = this.storage.getUserByEmail(email);
 
             if (!user) {
                 return { success: false, message: 'User not found' };
@@ -76,7 +73,7 @@ class Auth {
             }
 
             // Set current user
-            this.db.setCurrentUser(user);
+            this.storage.setCurrentUser(user);
 
             return { 
                 success: true, 
@@ -85,24 +82,24 @@ class Auth {
             };
         } catch (error) {
             console.error('Login error:', error);
-            return { success: false, message: 'An error occurred during login: ' + error.message };
+            return { success: false, message: 'An error occurred during login' };
         }
     }
 
     // Logout user
     logout() {
-        this.db.logout();
+        this.storage.logout();
         window.location.href = 'index.html';
     }
 
     // Check if user is authenticated
     isAuthenticated() {
-        return this.db.isLoggedIn();
+        return this.storage.isLoggedIn();
     }
 
     // Get current user
     getCurrentUser() {
-        return this.db.getCurrentUser();
+        return this.storage.getCurrentUser();
     }
 
     // Check if current user is tutor
@@ -147,21 +144,21 @@ class Auth {
     }
 
     // Update user profile
-    async updateProfile(userId, updates) {
+    updateProfile(userId, updates) {
         try {
-            const updatedUser = await this.db.updateUser(userId, updates);
+            const updatedUser = this.storage.updateUser(userId, updates);
             if (updatedUser) {
                 // Update current user if it's the same user
                 const currentUser = this.getCurrentUser();
                 if (currentUser && currentUser.id === userId) {
-                    this.db.setCurrentUser(updatedUser);
+                    this.storage.setCurrentUser(updatedUser);
                 }
                 return { success: true, user: updatedUser };
             }
             return { success: false, message: 'User not found' };
         } catch (error) {
             console.error('Profile update error:', error);
-            return { success: false, message: 'An error occurred: ' + error.message };
+            return { success: false, message: 'An error occurred' };
         }
     }
 
@@ -193,3 +190,8 @@ class Auth {
 
 // Initialize auth
 const auth = new Auth();
+
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Auth;
+}

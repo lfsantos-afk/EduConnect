@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduConnect - Connect with Your Perfect Tutor</title>
     <link rel="stylesheet" href="css/styles.css">
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -129,8 +122,31 @@
         <div class="container">
             <h2 class="section-title">Community Resources</h2>
             <p class="section-subtitle">Free educational materials shared by our tutors and students</p>
-            <div id="resourcesPreview" class="resources-preview">
-                <p style="text-align: center; color: #6b7280;">Loading resources...</p>
+            <div class="resources-preview">
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <span class="resource-icon">📄</span>
+                        <span class="resource-type">PDF</span>
+                    </div>
+                    <h4>Introduction to Calculus</h4>
+                    <p class="resource-author">by Prof. Johnson</p>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <span class="resource-icon">📊</span>
+                        <span class="resource-type">Slides</span>
+                    </div>
+                    <h4>Chemistry Basics</h4>
+                    <p class="resource-author">by Dr. Smith</p>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <span class="resource-icon">📝</span>
+                        <span class="resource-type">Notes</span>
+                    </div>
+                    <h4>English Grammar Guide</h4>
+                    <p class="resource-author">by Sarah Miller</p>
+                </div>
             </div>
             <div class="text-center" style="margin-top: 30px;">
                 <a href="register.html" class="btn-primary">Join to Access All Resources</a>
@@ -171,41 +187,6 @@
         </div>
     </footer>
 
-    <!-- Firebase Config and Scripts -->
-    <script src="js/firebase-config.js"></script>
     <script src="js/storage.js"></script>
-    <script>
-        // Load preview resources
-        async function loadPreviewResources() {
-            try {
-                const resources = await storage.getResources();
-                const preview = resources.slice(0, 3);
-                const container = document.getElementById('resourcesPreview');
-                
-                if (preview.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: #6b7280;">No resources available yet. Be the first to share!</p>';
-                    return;
-                }
-
-                container.innerHTML = preview.map(resource => `
-                    <div class="resource-card">
-                        <div class="resource-header">
-                            <span class="resource-icon">📄</span>
-                            <span class="resource-type">${resource.fileType}</span>
-                        </div>
-                        <h4>${resource.title}</h4>
-                        <p class="resource-author">by ${resource.authorName}</p>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading resources:', error);
-                document.getElementById('resourcesPreview').innerHTML = 
-                    '<p style="text-align: center; color: #ef4444;">Error loading resources</p>';
-            }
-        }
-
-        // Load resources when page loads
-        window.addEventListener('load', loadPreviewResources);
-    </script>
 </body>
 </html>

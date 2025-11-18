@@ -1,621 +1,724 @@
-// Firebase Storage Management System
-class FirebaseStorage {
+// Storage Management System
+// This file handles all data storage operations
+
+class Storage {
     constructor() {
-        this.db = firebase.firestore();
-        this.storage = firebase.storage();
-        this.auth = firebase.auth();
+        this.initializeStorage();
     }
 
-    // Users Management
-    async addUser(userData) {
-        try {
-            const userRef = await this.db.collection('users').add({
-                ...userData,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { id: userRef.id, ...userData };
-        } catch (error) {
-            console.error('Error adding user:', error);
-            throw error;
+    initializeStorage() {
+        // Initialize storage keys if they don't exist
+        if (!this.getData('users')) {
+            this.setData('users', []);
+        }
+        if (!this.getData('tutors')) {
+            this.setData('tutors', this.getDefaultTutors());
+        }
+        if (!this.getData('sessions')) {
+            this.setData('sessions', this.getDefaultSessions());
+        }
+        if (!this.getData('enrollments')) {
+            this.setData('enrollments', []);
+        }
+        if (!this.getData('resources')) {
+            this.setData('resources', this.getDefaultResources());
+        }
+        if (!this.getData('messages')) {
+            this.setData('messages', []);
+        }
+        if (!this.getData('notifications')) {
+            this.setData('notifications', []);
+        }
+        if (!this.getData('reviews')) {
+            this.setData('reviews', []);
+        }
+        if (!this.getData('favorites')) {
+            this.setData('favorites', []);
         }
     }
 
-    async getUserByEmail(email) {
+    // Basic CRUD operations
+    getData(key) {
         try {
-            const snapshot = await this.db.collection('users')
-                .where('email', '==', email)
-                .limit(1)
-                .get();
-            
-            if (snapshot.empty) return null;
-            
-            const doc = snapshot.docs[0];
-            return { id: doc.id, ...doc.data() };
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
         } catch (error) {
-            console.error('Error getting user:', error);
+            console.error('Error reading from storage:', error);
             return null;
         }
     }
 
-    async getUserById(userId) {
+    setData(key, value) {
         try {
-            const doc = await this.db.collection('users').doc(userId).get();
-            if (!doc.exists) return null;
-            return { id: doc.id, ...doc.data() };
-        } catch (error) {
-            console.error('Error getting user:', error);
-            return null;
-        }
-    }
-
-    async updateUser(userId, updates) {
-        try {
-            await this.db.collection('users').doc(userId).update(updates);
-            return await this.getUserById(userId);
-        } catch (error) {
-            console.error('Error updating user:', error);
-            throw error;
-        }
-    }
-
-    // Tutors Management
-    async addTutor(tutorData) {
-        try {
-            const tutorRef = await this.db.collection('tutors').add({
-                ...tutorData,
-                rating: 5.0,
-                totalStudents: 0,
-                totalReviews: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { id: tutorRef.id, ...tutorData };
-        } catch (error) {
-            console.error('Error adding tutor:', error);
-            throw error;
-        }
-    }
-
-    async getTutors() {
-        try {
-            const snapshot = await this.db.collection('tutors').get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting tutors:', error);
-            return [];
-        }
-    }
-
-    async getTutorById(tutorId) {
-        try {
-            const doc = await this.db.collection('tutors').doc(tutorId).get();
-            if (!doc.exists) return null;
-            return { id: doc.id, ...doc.data() };
-        } catch (error) {
-            console.error('Error getting tutor:', error);
-            return null;
-        }
-    }
-
-    async getTutorByUserId(userId) {
-        try {
-            const snapshot = await this.db.collection('tutors')
-                .where('userId', '==', userId)
-                .limit(1)
-                .get();
-            
-            if (snapshot.empty) return null;
-            
-            const doc = snapshot.docs[0];
-            return { id: doc.id, ...doc.data() };
-        } catch (error) {
-            console.error('Error getting tutor:', error);
-            return null;
-        }
-    }
-
-    async updateTutor(tutorId, updates) {
-        try {
-            await this.db.collection('tutors').doc(tutorId).update(updates);
-            return await this.getTutorById(tutorId);
-        } catch (error) {
-            console.error('Error updating tutor:', error);
-            throw error;
-        }
-    }
-
-    // Sessions Management
-    async addSession(sessionData) {
-        try {
-            const sessionRef = await this.db.collection('sessions').add({
-                ...sessionData,
-                currentStudents: 0,
-                status: 'upcoming',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { id: sessionRef.id, ...sessionData };
-        } catch (error) {
-            console.error('Error adding session:', error);
-            throw error;
-        }
-    }
-
-    async getSessions() {
-        try {
-            const snapshot = await this.db.collection('sessions')
-                .orderBy('date', 'asc')
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting sessions:', error);
-            return [];
-        }
-    }
-
-    async getSessionById(sessionId) {
-        try {
-            const doc = await this.db.collection('sessions').doc(sessionId).get();
-            if (!doc.exists) return null;
-            return { id: doc.id, ...doc.data() };
-        } catch (error) {
-            console.error('Error getting session:', error);
-            return null;
-        }
-    }
-
-    async getSessionsByTutor(tutorId) {
-        try {
-            const snapshot = await this.db.collection('sessions')
-                .where('tutorId', '==', tutorId)
-                .orderBy('date', 'asc')
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting sessions:', error);
-            return [];
-        }
-    }
-
-    async updateSession(sessionId, updates) {
-        try {
-            await this.db.collection('sessions').doc(sessionId).update(updates);
-            return await this.getSessionById(sessionId);
-        } catch (error) {
-            console.error('Error updating session:', error);
-            throw error;
-        }
-    }
-
-    async deleteSession(sessionId) {
-        try {
-            await this.db.collection('sessions').doc(sessionId).delete();
+            localStorage.setItem(key, JSON.stringify(value));
             return true;
         } catch (error) {
-            console.error('Error deleting session:', error);
-            throw error;
-        }
-    }
-
-    // Enrollments Management
-    async addEnrollment(enrollmentData) {
-        try {
-            const enrollmentRef = await this.db.collection('enrollments').add({
-                ...enrollmentData,
-                status: 'active',
-                enrolledAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { id: enrollmentRef.id, ...enrollmentData };
-        } catch (error) {
-            console.error('Error adding enrollment:', error);
-            throw error;
-        }
-    }
-
-    async getEnrollmentsByStudent(studentId) {
-        try {
-            const snapshot = await this.db.collection('enrollments')
-                .where('studentId', '==', studentId)
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting enrollments:', error);
-            return [];
-        }
-    }
-
-    async getEnrollmentsBySession(sessionId) {
-        try {
-            const snapshot = await this.db.collection('enrollments')
-                .where('sessionId', '==', sessionId)
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting enrollments:', error);
-            return [];
-        }
-    }
-
-    // Resources Management with File Upload
-    async uploadResourceFile(file, metadata) {
-        try {
-            // Validate file type
-            const allowedTypes = {
-                'PDF': ['application/pdf'],
-                'DOC': ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                'PPT': ['application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
-                'XLS': ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-                'Video': ['video/mp4', 'video/mpeg', 'video/quicktime'],
-                'Other': []
-            };
-
-            const selectedType = metadata.fileType;
-            const actualType = file.type;
-
-            if (selectedType !== 'Other' && allowedTypes[selectedType]) {
-                if (!allowedTypes[selectedType].includes(actualType)) {
-                    throw new Error(`File type mismatch. Selected ${selectedType} but uploaded ${actualType}`);
-                }
-            }
-
-            // Create unique filename
-            const timestamp = Date.now();
-            const filename = `${timestamp}_${file.name}`;
-            const storageRef = this.storage.ref(`resources/${filename}`);
-
-            // Upload file
-            const uploadTask = await storageRef.put(file, {
-                contentType: file.type,
-                customMetadata: {
-                    authorId: metadata.authorId,
-                    subject: metadata.subject
-                }
-            });
-
-            // Get download URL
-            const downloadURL = await uploadTask.ref.getDownloadURL();
-
-            // Save metadata to Firestore
-            const resourceRef = await this.db.collection('resources').add({
-                authorId: metadata.authorId,
-                authorName: metadata.authorName,
-                title: metadata.title,
-                description: metadata.description,
-                subject: metadata.subject,
-                fileType: metadata.fileType,
-                fileName: file.name,
-                fileSize: file.size,
-                downloadURL: downloadURL,
-                storagePath: uploadTask.ref.fullPath,
-                views: 0,
-                downloads: 0,
-                uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            return { 
-                id: resourceRef.id, 
-                downloadURL,
-                ...metadata 
-            };
-        } catch (error) {
-            console.error('Error uploading resource:', error);
-            throw error;
-        }
-    }
-
-    async getResources() {
-        try {
-            const snapshot = await this.db.collection('resources')
-                .orderBy('uploadedAt', 'desc')
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting resources:', error);
-            return [];
-        }
-    }
-
-    async deleteResource(resourceId) {
-        try {
-            // Get resource data to delete file from storage
-            const doc = await this.db.collection('resources').doc(resourceId).get();
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.storagePath) {
-                    // Delete file from storage
-                    const fileRef = this.storage.ref(data.storagePath);
-                    await fileRef.delete();
-                }
-            }
-            
-            // Delete from Firestore
-            await this.db.collection('resources').doc(resourceId).delete();
-            return true;
-        } catch (error) {
-            console.error('Error deleting resource:', error);
-            throw error;
-        }
-    }
-
-    async incrementResourceViews(resourceId) {
-        try {
-            await this.db.collection('resources').doc(resourceId).update({
-                views: firebase.firestore.FieldValue.increment(1)
-            });
-        } catch (error) {
-            console.error('Error incrementing views:', error);
-        }
-    }
-
-    async incrementResourceDownloads(resourceId) {
-        try {
-            await this.db.collection('resources').doc(resourceId).update({
-                downloads: firebase.firestore.FieldValue.increment(1)
-            });
-        } catch (error) {
-            console.error('Error incrementing downloads:', error);
-        }
-    }
-
-    // Messages Management (Real-time)
-    async sendMessage(messageData) {
-        try {
-            const messageRef = await this.db.collection('messages').add({
-                ...messageData,
-                read: false,
-                sentAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Create notification for receiver
-            await this.addNotification({
-                userId: messageData.receiverId,
-                type: 'message',
-                title: 'New Message',
-                message: 'You have a new message',
-                relatedId: messageData.senderId
-            });
-            
-            return { id: messageRef.id, ...messageData };
-        } catch (error) {
-            console.error('Error sending message:', error);
-            throw error;
-        }
-    }
-
-    async getConversation(user1Id, user2Id) {
-        try {
-            const snapshot = await this.db.collection('messages')
-                .where('senderId', 'in', [user1Id, user2Id])
-                .orderBy('sentAt', 'asc')
-                .get();
-            
-            return snapshot.docs
-                .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(msg => 
-                    (msg.senderId === user1Id && msg.receiverId === user2Id) ||
-                    (msg.senderId === user2Id && msg.receiverId === user1Id)
-                );
-        } catch (error) {
-            console.error('Error getting conversation:', error);
-            return [];
-        }
-    }
-
-    async markMessagesAsRead(user1Id, user2Id) {
-        try {
-            const snapshot = await this.db.collection('messages')
-                .where('senderId', '==', user2Id)
-                .where('receiverId', '==', user1Id)
-                .where('read', '==', false)
-                .get();
-            
-            const batch = this.db.batch();
-            snapshot.docs.forEach(doc => {
-                batch.update(doc.ref, { read: true });
-            });
-            
-            await batch.commit();
-        } catch (error) {
-            console.error('Error marking messages as read:', error);
-        }
-    }
-
-    // Notifications Management
-    async addNotification(notificationData) {
-        try {
-            const notifRef = await this.db.collection('notifications').add({
-                ...notificationData,
-                read: false,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { id: notifRef.id, ...notificationData };
-        } catch (error) {
-            console.error('Error adding notification:', error);
-            throw error;
-        }
-    }
-
-    async getUserNotifications(userId) {
-        try {
-            const snapshot = await this.db.collection('notifications')
-                .where('userId', '==', userId)
-                .orderBy('createdAt', 'desc')
-                .limit(50)
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting notifications:', error);
-            return [];
-        }
-    }
-
-    async markNotificationAsRead(notificationId) {
-        try {
-            await this.db.collection('notifications').doc(notificationId).update({
-                read: true
-            });
-        } catch (error) {
-            console.error('Error marking notification as read:', error);
-        }
-    }
-
-    // Reviews Management
-    async addReview(reviewData) {
-        try {
-            const reviewRef = await this.db.collection('reviews').add({
-                ...reviewData,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Update tutor rating
-            await this.updateTutorRating(reviewData.tutorId);
-            
-            return { id: reviewRef.id, ...reviewData };
-        } catch (error) {
-            console.error('Error adding review:', error);
-            throw error;
-        }
-    }
-
-    async getTutorReviews(tutorId) {
-        try {
-            const snapshot = await this.db.collection('reviews')
-                .where('tutorId', '==', tutorId)
-                .orderBy('createdAt', 'desc')
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting reviews:', error);
-            return [];
-        }
-    }
-
-    async updateTutorRating(tutorId) {
-        try {
-            const reviews = await this.getTutorReviews(tutorId);
-            if (reviews.length === 0) return;
-            
-            const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-            await this.updateTutor(tutorId, {
-                rating: Math.round(avgRating * 10) / 10,
-                totalReviews: reviews.length
-            });
-        } catch (error) {
-            console.error('Error updating tutor rating:', error);
-        }
-    }
-
-    async hasUserReviewedTutor(userId, tutorId) {
-        try {
-            const snapshot = await this.db.collection('reviews')
-                .where('userId', '==', userId)
-                .where('tutorId', '==', tutorId)
-                .limit(1)
-                .get();
-            return !snapshot.empty;
-        } catch (error) {
-            console.error('Error checking review:', error);
+            console.error('Error writing to storage:', error);
             return false;
         }
     }
 
-    // Favorites Management
-    async addFavorite(userId, tutorId) {
-        try {
-            // Check if already exists
-            const exists = await this.isFavorite(userId, tutorId);
-            if (exists) return null;
-            
-            const favRef = await this.db.collection('favorites').add({
-                userId,
-                tutorId,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { id: favRef.id, userId, tutorId };
-        } catch (error) {
-            console.error('Error adding favorite:', error);
-            throw error;
-        }
+    clearData(key) {
+        localStorage.removeItem(key);
     }
 
-    async removeFavorite(userId, tutorId) {
-        try {
-            const snapshot = await this.db.collection('favorites')
-                .where('userId', '==', userId)
-                .where('tutorId', '==', tutorId)
-                .limit(1)
-                .get();
-            
-            if (!snapshot.empty) {
-                await snapshot.docs[0].ref.delete();
-            }
-            return true;
-        } catch (error) {
-            console.error('Error removing favorite:', error);
-            throw error;
-        }
+    clearAllData() {
+        localStorage.clear();
+        this.initializeStorage();
     }
 
-    async isFavorite(userId, tutorId) {
-        try {
-            const snapshot = await this.db.collection('favorites')
-                .where('userId', '==', userId)
-                .where('tutorId', '==', tutorId)
-                .limit(1)
-                .get();
-            return !snapshot.empty;
-        } catch (error) {
-            console.error('Error checking favorite:', error);
-            return false;
-        }
+    // User Management
+    getUsers() {
+        return this.getData('users') || [];
     }
 
-    async getUserFavorites(userId) {
-        try {
-            const snapshot = await this.db.collection('favorites')
-                .where('userId', '==', userId)
-                .get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('Error getting favorites:', error);
-            return [];
-        }
+    addUser(user) {
+        const users = this.getUsers();
+        const newUser = {
+            id: Date.now(),
+            ...user,
+            createdAt: new Date().toISOString()
+        };
+        users.push(newUser);
+        this.setData('users', users);
+        return newUser;
     }
 
-    async getTutorFavoritesCount(tutorId) {
-        try {
-            const snapshot = await this.db.collection('favorites')
-                .where('tutorId', '==', tutorId)
-                .get();
-            return snapshot.size;
-        } catch (error) {
-            console.error('Error getting favorites count:', error);
-            return 0;
-        }
+    getUserByEmail(email) {
+        const users = this.getUsers();
+        return users.find(u => u.email === email);
     }
 
-    // Session Management (Current User)
+    getUserById(id) {
+        const users = this.getUsers();
+        return users.find(u => u.id === parseInt(id));
+    }
+
+    updateUser(userId, updates) {
+        const users = this.getUsers();
+        const index = users.findIndex(u => u.id === parseInt(userId));
+        if (index !== -1) {
+            users[index] = { ...users[index], ...updates };
+            this.setData('users', users);
+            return users[index];
+        }
+        return null;
+    }
+
+    // Session Management
     setCurrentUser(user) {
-        sessionStorage.setItem('currentUser', JSON.stringify(user));
+        this.setData('currentUser', user);
     }
 
     getCurrentUser() {
-        const user = sessionStorage.getItem('currentUser');
-        return user ? JSON.parse(user) : null;
+        return this.getData('currentUser');
     }
 
     logout() {
-        sessionStorage.removeItem('currentUser');
-        firebase.auth().signOut();
+        this.clearData('currentUser');
     }
 
     isLoggedIn() {
         return this.getCurrentUser() !== null;
     }
+
+    // Tutor Management
+    getTutors() {
+        return this.getData('tutors') || [];
+    }
+
+    getTutorById(id) {
+        const tutors = this.getTutors();
+        return tutors.find(t => t.id === parseInt(id));
+    }
+
+    getTutorByUserId(userId) {
+        const tutors = this.getTutors();
+        return tutors.find(t => t.userId === parseInt(userId));
+    }
+
+    updateTutor(tutorId, updates) {
+        const tutors = this.getTutors();
+        const index = tutors.findIndex(t => t.id === parseInt(tutorId));
+        if (index !== -1) {
+            tutors[index] = { ...tutors[index], ...updates };
+            this.setData('tutors', tutors);
+            return tutors[index];
+        }
+        return null;
+    }
+
+    addTutor(tutor) {
+        const tutors = this.getTutors();
+        const newTutor = {
+            id: Date.now(),
+            ...tutor,
+            createdAt: new Date().toISOString()
+        };
+        tutors.push(newTutor);
+        this.setData('tutors', tutors);
+        return newTutor;
+    }
+
+    // Tutoring Sessions Management
+    getSessions() {
+        return this.getData('sessions') || [];
+    }
+
+    getSessionById(id) {
+        const sessions = this.getSessions();
+        return sessions.find(s => s.id === parseInt(id));
+    }
+
+    getSessionsByTutor(tutorId) {
+        const sessions = this.getSessions();
+        return sessions.filter(s => s.tutorId === parseInt(tutorId));
+    }
+
+    addSession(session) {
+        const sessions = this.getSessions();
+        const newSession = {
+            id: Date.now(),
+            ...session,
+            createdAt: new Date().toISOString()
+        };
+        sessions.push(newSession);
+        this.setData('sessions', sessions);
+        return newSession;
+    }
+
+    updateSession(sessionId, updates) {
+        const sessions = this.getSessions();
+        const index = sessions.findIndex(s => s.id === parseInt(sessionId));
+        if (index !== -1) {
+            sessions[index] = { ...sessions[index], ...updates };
+            this.setData('sessions', sessions);
+            return sessions[index];
+        }
+        return null;
+    }
+
+    deleteSession(sessionId) {
+        const sessions = this.getSessions();
+        const filtered = sessions.filter(s => s.id !== parseInt(sessionId));
+        this.setData('sessions', filtered);
+        return true;
+    }
+
+    // Enrollment Management
+    getEnrollments() {
+        return this.getData('enrollments') || [];
+    }
+
+    getEnrollmentsByStudent(studentId) {
+        const enrollments = this.getEnrollments();
+        return enrollments.filter(e => e.studentId === parseInt(studentId));
+    }
+
+    getEnrollmentsBySession(sessionId) {
+        const enrollments = this.getEnrollments();
+        return enrollments.filter(e => e.sessionId === parseInt(sessionId));
+    }
+
+    addEnrollment(enrollment) {
+        const enrollments = this.getEnrollments();
+        const newEnrollment = {
+            id: Date.now(),
+            ...enrollment,
+            status: 'active',
+            enrolledAt: new Date().toISOString()
+        };
+        enrollments.push(newEnrollment);
+        this.setData('enrollments', enrollments);
+        return newEnrollment;
+    }
+
+    // Resources Management
+    getResources() {
+        return this.getData('resources') || [];
+    }
+
+    addResource(resource) {
+        const resources = this.getResources();
+        const newResource = {
+            id: Date.now(),
+            ...resource,
+            uploadedAt: new Date().toISOString(),
+            views: 0,
+            downloads: 0
+        };
+        resources.push(newResource);
+        this.setData('resources', resources);
+        return newResource;
+    }
+
+    deleteResource(resourceId) {
+        const resources = this.getResources();
+        const filtered = resources.filter(r => r.id !== parseInt(resourceId));
+        this.setData('resources', filtered);
+        return true;
+    }
+
+    incrementResourceViews(resourceId) {
+        const resources = this.getResources();
+        const resource = resources.find(r => r.id === parseInt(resourceId));
+        if (resource) {
+            resource.views++;
+            this.setData('resources', resources);
+        }
+    }
+
+    incrementResourceDownloads(resourceId) {
+        const resources = this.getResources();
+        const resource = resources.find(r => r.id === parseInt(resourceId));
+        if (resource) {
+            resource.downloads++;
+            this.setData('resources', resources);
+        }
+    }
+
+    // Messages Management
+    getMessages() {
+        return this.getData('messages') || [];
+    }
+
+    getConversation(user1Id, user2Id) {
+        const messages = this.getMessages();
+        return messages.filter(m => 
+            (m.senderId === parseInt(user1Id) && m.receiverId === parseInt(user2Id)) ||
+            (m.senderId === parseInt(user2Id) && m.receiverId === parseInt(user1Id))
+        ).sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt));
+    }
+
+    getConversations(userId) {
+        const messages = this.getMessages();
+        const userMessages = messages.filter(m => 
+            m.senderId === parseInt(userId) || m.receiverId === parseInt(userId)
+        );
+        
+        const conversationsMap = new Map();
+        userMessages.forEach(msg => {
+            const otherId = msg.senderId === parseInt(userId) ? msg.receiverId : msg.senderId;
+            if (!conversationsMap.has(otherId) || 
+                new Date(msg.sentAt) > new Date(conversationsMap.get(otherId).sentAt)) {
+                conversationsMap.set(otherId, msg);
+            }
+        });
+        
+        return Array.from(conversationsMap.values()).sort((a, b) => 
+            new Date(b.sentAt) - new Date(a.sentAt)
+        );
+    }
+
+    sendMessage(message) {
+        const messages = this.getMessages();
+        const newMessage = {
+            id: Date.now(),
+            ...message,
+            sentAt: new Date().toISOString(),
+            read: false
+        };
+        messages.push(newMessage);
+        this.setData('messages', messages);
+        
+        // Create notification for receiver
+        this.addNotification({
+            userId: message.receiverId,
+            type: 'message',
+            title: 'New Message',
+            message: `You have a new message`,
+            relatedId: message.senderId
+        });
+        
+        return newMessage;
+    }
+
+    markMessagesAsRead(user1Id, user2Id) {
+        const messages = this.getMessages();
+        messages.forEach(m => {
+            if (m.senderId === parseInt(user2Id) && m.receiverId === parseInt(user1Id)) {
+                m.read = true;
+            }
+        });
+        this.setData('messages', messages);
+    }
+
+    // Notifications Management
+    getNotifications() {
+        return this.getData('notifications') || [];
+    }
+
+    getUserNotifications(userId) {
+        const notifications = this.getNotifications();
+        return notifications.filter(n => n.userId === parseInt(userId))
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    getUnreadNotifications(userId) {
+        const notifications = this.getUserNotifications(userId);
+        return notifications.filter(n => !n.read);
+    }
+
+    addNotification(notification) {
+        const notifications = this.getNotifications();
+        const newNotification = {
+            id: Date.now(),
+            ...notification,
+            read: false,
+            createdAt: new Date().toISOString()
+        };
+        notifications.push(newNotification);
+        this.setData('notifications', notifications);
+        return newNotification;
+    }
+
+    markNotificationAsRead(notificationId) {
+        const notifications = this.getNotifications();
+        const notification = notifications.find(n => n.id === parseInt(notificationId));
+        if (notification) {
+            notification.read = true;
+            this.setData('notifications', notifications);
+        }
+    }
+
+    markAllNotificationsAsRead(userId) {
+        const notifications = this.getNotifications();
+        notifications.forEach(n => {
+            if (n.userId === parseInt(userId)) {
+                n.read = true;
+            }
+        });
+        this.setData('notifications', notifications);
+    }
+
+    // Reviews Management
+    getReviews() {
+        return this.getData('reviews') || [];
+    }
+
+    getTutorReviews(tutorId) {
+        const reviews = this.getReviews();
+        return reviews.filter(r => r.tutorId === parseInt(tutorId))
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    addReview(review) {
+        const reviews = this.getReviews();
+        const newReview = {
+            id: Date.now(),
+            ...review,
+            createdAt: new Date().toISOString()
+        };
+        reviews.push(newReview);
+        this.setData('reviews', reviews);
+        
+        // Update tutor rating
+        this.updateTutorRating(review.tutorId);
+        
+        return newReview;
+    }
+
+    updateTutorRating(tutorId) {
+        const reviews = this.getTutorReviews(tutorId);
+        if (reviews.length === 0) return;
+        
+        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+        const tutor = this.getTutorById(tutorId);
+        
+        if (tutor) {
+            this.updateTutor(tutorId, { 
+                rating: Math.round(avgRating * 10) / 10,
+                totalReviews: reviews.length
+            });
+        }
+    }
+
+    hasUserReviewedTutor(userId, tutorId) {
+        const reviews = this.getReviews();
+        return reviews.some(r => r.userId === parseInt(userId) && r.tutorId === parseInt(tutorId));
+    }
+
+    // Favorites Management
+    getFavorites() {
+        return this.getData('favorites') || [];
+    }
+
+    getUserFavorites(userId) {
+        const favorites = this.getFavorites();
+        return favorites.filter(f => f.userId === parseInt(userId));
+    }
+
+    addFavorite(userId, tutorId) {
+        const favorites = this.getFavorites();
+        
+        // Check if already favorited
+        const exists = favorites.some(f => 
+            f.userId === parseInt(userId) && f.tutorId === parseInt(tutorId)
+        );
+        
+        if (exists) return null;
+        
+        const newFavorite = {
+            id: Date.now(),
+            userId: parseInt(userId),
+            tutorId: parseInt(tutorId),
+            createdAt: new Date().toISOString()
+        };
+        
+        favorites.push(newFavorite);
+        this.setData('favorites', favorites);
+        return newFavorite;
+    }
+
+    removeFavorite(userId, tutorId) {
+        const favorites = this.getFavorites();
+        const filtered = favorites.filter(f => 
+            !(f.userId === parseInt(userId) && f.tutorId === parseInt(tutorId))
+        );
+        this.setData('favorites', filtered);
+        return true;
+    }
+
+    isFavorite(userId, tutorId) {
+        const favorites = this.getUserFavorites(userId);
+        return favorites.some(f => f.tutorId === parseInt(tutorId));
+    }
+
+    getTutorFavoritesCount(tutorId) {
+        const favorites = this.getFavorites();
+        return favorites.filter(f => f.tutorId === parseInt(tutorId)).length;
+    }
+
+    // Default Data
+    getDefaultTutors() {
+        return [
+            {
+                id: 1,
+                userId: null,
+                name: 'Dr. Sarah Johnson',
+                email: 'sarah.johnson@educonnect.com',
+                subjects: ['Mathematics', 'Physics'],
+                description: 'PhD in Mathematics with 10+ years of teaching experience. Specializing in calculus and advanced mathematics.',
+                photo: '👩‍🏫',
+                rating: 4.9,
+                totalStudents: 156
+            },
+            {
+                id: 2,
+                userId: null,
+                name: 'Prof. Michael Chen',
+                email: 'michael.chen@educonnect.com',
+                subjects: ['Programming', 'Computer Science'],
+                description: 'Software engineer and educator passionate about teaching coding to beginners and advanced students.',
+                photo: '👨‍💻',
+                rating: 4.8,
+                totalStudents: 203
+            },
+            {
+                id: 3,
+                userId: null,
+                name: 'Emma Williams',
+                email: 'emma.williams@educonnect.com',
+                subjects: ['English', 'Literature'],
+                description: 'English literature expert with a focus on creative writing and essay composition.',
+                photo: '👩‍🎓',
+                rating: 4.9,
+                totalStudents: 134
+            },
+            {
+                id: 4,
+                userId: null,
+                name: 'Dr. James Rodriguez',
+                email: 'james.rodriguez@educonnect.com',
+                subjects: ['Chemistry', 'Biology'],
+                description: 'Biochemistry professor making science fun and accessible for all students.',
+                photo: '👨‍🔬',
+                rating: 4.7,
+                totalStudents: 98
+            },
+            {
+                id: 5,
+                userId: null,
+                name: 'Lisa Anderson',
+                email: 'lisa.anderson@educonnect.com',
+                subjects: ['History', 'Geography'],
+                description: 'History enthusiast bringing the past to life through engaging storytelling.',
+                photo: '👩‍🏫',
+                rating: 4.8,
+                totalStudents: 87
+            },
+            {
+                id: 6,
+                userId: null,
+                name: 'David Kim',
+                email: 'david.kim@educonnect.com',
+                subjects: ['Spanish', 'French'],
+                description: 'Polyglot language teacher with immersive teaching methods.',
+                photo: '👨‍🎓',
+                rating: 4.9,
+                totalStudents: 176
+            }
+        ];
+    }
+
+    getDefaultSessions() {
+        return [
+            {
+                id: 1,
+                tutorId: 1,
+                title: 'Introduction to Calculus',
+                subject: 'Mathematics',
+                description: 'Learn the fundamentals of calculus including limits, derivatives, and integrals.',
+                date: '2024-12-01',
+                time: '14:00',
+                duration: '60 minutes',
+                maxStudents: 10,
+                currentStudents: 3,
+                status: 'upcoming'
+            },
+            {
+                id: 2,
+                tutorId: 1,
+                title: 'Advanced Algebra',
+                subject: 'Mathematics',
+                description: 'Master complex algebraic concepts and problem-solving techniques.',
+                date: '2024-12-03',
+                time: '15:00',
+                duration: '90 minutes',
+                maxStudents: 8,
+                currentStudents: 5,
+                status: 'upcoming'
+            },
+            {
+                id: 3,
+                tutorId: 2,
+                title: 'Python for Beginners',
+                subject: 'Programming',
+                description: 'Start your programming journey with Python basics and hands-on projects.',
+                date: '2024-12-02',
+                time: '16:00',
+                duration: '120 minutes',
+                maxStudents: 15,
+                currentStudents: 12,
+                status: 'upcoming'
+            },
+            {
+                id: 4,
+                tutorId: 2,
+                title: 'Web Development Fundamentals',
+                subject: 'Programming',
+                description: 'Learn HTML, CSS, and JavaScript to build your first website.',
+                date: '2024-12-05',
+                time: '14:00',
+                duration: '90 minutes',
+                maxStudents: 12,
+                currentStudents: 8,
+                status: 'upcoming'
+            },
+            {
+                id: 5,
+                tutorId: 3,
+                title: 'Essay Writing Masterclass',
+                subject: 'English',
+                description: 'Improve your essay writing skills with structured techniques and feedback.',
+                date: '2024-12-04',
+                time: '13:00',
+                duration: '60 minutes',
+                maxStudents: 10,
+                currentStudents: 7,
+                status: 'upcoming'
+            },
+            {
+                id: 6,
+                tutorId: 4,
+                title: 'Organic Chemistry Basics',
+                subject: 'Chemistry',
+                description: 'Understand organic compounds, reactions, and molecular structures.',
+                date: '2024-12-06',
+                time: '15:00',
+                duration: '90 minutes',
+                maxStudents: 10,
+                currentStudents: 4,
+                status: 'upcoming'
+            }
+        ];
+    }
+
+    getDefaultResources() {
+        return [
+            {
+                id: 1,
+                authorId: 1,
+                authorName: 'Dr. Sarah Johnson',
+                title: 'Calculus Fundamentals Guide',
+                description: 'Complete guide covering limits, derivatives, and integrals with examples.',
+                subject: 'Mathematics',
+                fileType: 'PDF',
+                fileName: 'calculus-guide.pdf',
+                uploadedAt: '2024-11-01T10:00:00Z',
+                views: 245,
+                downloads: 89
+            },
+            {
+                id: 2,
+                authorId: 2,
+                authorName: 'Prof. Michael Chen',
+                title: 'Python Cheat Sheet',
+                description: 'Quick reference for Python syntax, functions, and common operations.',
+                subject: 'Programming',
+                fileType: 'PDF',
+                fileName: 'python-cheatsheet.pdf',
+                uploadedAt: '2024-11-05T14:30:00Z',
+                views: 412,
+                downloads: 178
+            },
+            {
+                id: 3,
+                authorId: 3,
+                authorName: 'Emma Williams',
+                title: 'Essay Structure Template',
+                description: 'Professional template for organizing and writing academic essays.',
+                subject: 'English',
+                fileType: 'DOC',
+                fileName: 'essay-template.doc',
+                uploadedAt: '2024-11-08T09:15:00Z',
+                views: 189,
+                downloads: 123
+            },
+            {
+                id: 4,
+                authorId: 4,
+                authorName: 'Dr. James Rodriguez',
+                title: 'Periodic Table Reference',
+                description: 'Comprehensive periodic table with element properties and trends.',
+                subject: 'Chemistry',
+                fileType: 'PDF',
+                fileName: 'periodic-table.pdf',
+                uploadedAt: '2024-11-10T11:00:00Z',
+                views: 334,
+                downloads: 156
+            },
+            {
+                id: 5,
+                authorId: 5,
+                authorName: 'Lisa Anderson',
+                title: 'World War II Timeline',
+                description: 'Detailed timeline of major events during World War II.',
+                subject: 'History',
+                fileType: 'PDF',
+                fileName: 'wwii-timeline.pdf',
+                uploadedAt: '2024-11-12T13:45:00Z',
+                views: 267,
+                downloads: 98
+            }
+        ];
+    }
 }
 
 // Initialize storage
-const storage = new FirebaseStorage();
+const storage = new Storage();
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = FirebaseStorage;
+    module.exports = Storage;
 }
